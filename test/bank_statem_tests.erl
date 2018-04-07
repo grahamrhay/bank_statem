@@ -2,5 +2,8 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
-a_test() ->
-    ?assertEqual(true, true).
+get_balance_test() ->
+    From = self(),
+    Balance = 123,
+    Data = #{balance=>Balance},
+    {keep_state, Data, [{reply, From, Balance}]} = bank_statem:open({call, From}, get_balance, Data).
