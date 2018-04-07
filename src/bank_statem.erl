@@ -44,7 +44,7 @@ open({call, From}, {deposit, Amount}, #{balance:=Balance} = Data) when is_number
     NewBalance = Balance + Amount,
     {keep_state, Data#{balance:=NewBalance}, [{reply, From, deposit_made}]};
 
-open({call, From}, {withdraw, Amount}, #{balance:=Balance} = Data) when is_number(Amount) ->
+open({call, From}, {withdraw, Amount}, #{balance:=Balance} = Data) when is_number(Amount) andalso (Balance - Amount > 0) ->
     NewBalance = Balance - Amount,
     {keep_state, Data#{balance:=NewBalance}, [{reply, From, withdrawal_made}]}.
 

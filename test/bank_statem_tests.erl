@@ -29,3 +29,7 @@ negative_deposit_test() ->
 withdraw_test() ->
     From = self(),
     {keep_state, #{balance:=100}, [{reply, From, withdrawal_made}]} = bank_statem:open({call, From}, {withdraw, 100}, #{balance=>200}).
+
+negative_balance_test() ->
+    From = self(),
+    ?assertError(function_clause, bank_statem:open({call, From}, {withdraw, 1}, #{balance=>0})).
