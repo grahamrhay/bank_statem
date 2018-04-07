@@ -7,3 +7,8 @@ get_balance_test() ->
     Balance = 123,
     Data = #{balance=>Balance},
     {keep_state, Data, [{reply, From, Balance}]} = bank_statem:open({call, From}, get_balance, Data).
+
+close_test() ->
+    From = self(),
+    Data = #{},
+    {next_state, closed, Data, [{reply, From, closed}]} = bank_statem:open({call, From}, close, Data).
