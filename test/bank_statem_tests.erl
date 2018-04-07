@@ -17,3 +17,7 @@ reopen_test() ->
     From = self(),
     Data = #{},
     {next_state, open, Data, [{reply, From, open}]} = bank_statem:closed({call, From}, reopen, Data).
+
+deposit_test() ->
+    From = self(),
+    {keep_state, #{balance:=200}, [{reply, From, deposit_made}]} = bank_statem:open({call, From}, {deposit, 100}, #{balance=>100}).

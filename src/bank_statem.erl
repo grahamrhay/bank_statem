@@ -2,7 +2,7 @@
 
 -behaviour(gen_statem).
 
--export([start/0, stop/0, get_balance/0, close/0, reopen/0]).
+-export([start/0, stop/0, get_balance/0, close/0, reopen/0, deposit/1]).
 -export([init/1, callback_mode/0]).
 -export([open/3, closed/3]).
 
@@ -20,6 +20,9 @@ close() ->
 reopen() ->
     gen_statem:call(name(), reopen).
 
+deposit(Amount) ->
+    gen_statem:call(name(), {deposit, Amount}).
+
 stop() ->
     gen_statem:stop(name()).
 
@@ -32,7 +35,11 @@ open({call, From}, get_balance, #{balance:=Balance} = Data) ->
     {keep_state, Data, [{reply, From, Balance}]};
 
 open({call, From}, close, Data) ->
-    {next_state, closed, Data, [{reply, From, closed}]}.
+    {next_state, closed, Data, [{reply, From, closed}]};
+
+open({call, From}, {deposit, Amount}, #{balance:=Balance} = Data) ->
+    NewBalance = Balance + Amount,
+    {keep_state, Data#{balance:=NewBalance}, [{reply, From, deposit_made}]}.
 
 closed({call, From}, reopen, Data) ->
     {next_state, open, Data, [{reply, From, open}]}.
