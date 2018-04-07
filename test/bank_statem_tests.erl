@@ -21,3 +21,7 @@ reopen_test() ->
 deposit_test() ->
     From = self(),
     {keep_state, #{balance:=200}, [{reply, From, deposit_made}]} = bank_statem:open({call, From}, {deposit, 100}, #{balance=>100}).
+
+negative_deposit_test() ->
+    From = self(),
+    ?assertError(function_clause, bank_statem:open({call, From}, {deposit, -1}, #{balance=>100})).

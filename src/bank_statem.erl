@@ -37,7 +37,7 @@ open({call, From}, get_balance, #{balance:=Balance} = Data) ->
 open({call, From}, close, Data) ->
     {next_state, closed, Data, [{reply, From, closed}]};
 
-open({call, From}, {deposit, Amount}, #{balance:=Balance} = Data) ->
+open({call, From}, {deposit, Amount}, #{balance:=Balance} = Data) when is_number(Amount) andalso Amount > 0 ->
     NewBalance = Balance + Amount,
     {keep_state, Data#{balance:=NewBalance}, [{reply, From, deposit_made}]}.
 
