@@ -2,7 +2,7 @@
 
 -behaviour(gen_statem).
 
--export([start/0, get_balance/0]).
+-export([start/0, stop/0, get_balance/0]).
 -export([init/1, callback_mode/0]).
 -export([open/3]).
 
@@ -13,6 +13,9 @@ start() ->
 
 get_balance() ->
     gen_statem:call(name(), get_balance).
+
+stop() ->
+    gen_statem:stop(name()).
 
 init([]) ->
     {ok, open, #{balance=>0}}.
