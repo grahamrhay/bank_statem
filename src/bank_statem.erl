@@ -49,9 +49,11 @@ handle_event({call, From}, close, open, Data) ->
 handle_event({call, From}, place_hold, open, Data) ->
     {next_state, held, Data, [{reply, From, hold_placed}]};
 
-handle_event({call, From}, {deposit, Amount}, open, #{balance:=Balance} = Data) when is_number(Amount) andalso Amount > 0 ->
-    NewBalance = Balance + Amount,
-    {keep_state, Data#{balance:=NewBalance}, [{reply, From, deposit_made}]};
+handle_event({call, From}, {deposit, Amount}, open, Data) ->
+    handle_deposit(Amount, Data, From);
+
+handle_event({call, From}, {deposit, Amount}, held, Data) ->
+    handle_deposit(Amount, Data, From);
 
 handle_event({call, From}, {withdraw, Amount}, open, #{balance:=Balance} = Data) when is_number(Amount) andalso (Balance - Amount > 0) ->
     NewBalance = Balance - Amount,
@@ -62,3 +64,7 @@ handle_event({call, From}, remove_hold, held, Data) ->
 
 handle_event({call, From}, reopen, closed, Data) ->
     {next_state, open, Data, [{reply, From, open}]}.
+
+handle_deposit(Amount, #{balance:=Balance} = Data, From) when is_number(Amount) andalso Amount > 0 ->
+    NewBalance = Balance + Amount,
+    {keep_state, Data#{balance:=NewBalance}, [{reply, From, deposit_made}]}.
