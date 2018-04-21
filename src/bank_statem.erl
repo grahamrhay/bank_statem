@@ -49,16 +49,22 @@ open({call, From}, close, Data) ->
 open({call, From}, place_hold, Data) ->
     {next_state, held, Data, [{reply, From, hold_placed}]};
 
-open({call, From}, {deposit, Amount}, #{balance:=Balance} = Data) when is_number(Amount) andalso Amount > 0 ->
-    NewBalance = Balance + Amount,
-    {keep_state, Data#{balance:=NewBalance}, [{reply, From, deposit_made}]};
+open({call, From}, {deposit, Amount}, Data) ->
+    handle_deposit(Amount, Data, From);
 
 open({call, From}, {withdraw, Amount}, #{balance:=Balance} = Data) when is_number(Amount) andalso (Balance - Amount > 0) ->
     NewBalance = Balance - Amount,
     {keep_state, Data#{balance:=NewBalance}, [{reply, From, withdrawal_made}]}.
+
+held({call, From}, {deposit, Amount}, Data) ->
+    handle_deposit(Amount, Data, From);
 
 held({call, From}, remove_hold, Data) ->
     {next_state, open, Data, [{reply, From, hold_removed}]}.
 
 closed({call, From}, reopen, Data) ->
     {next_state, open, Data, [{reply, From, open}]}.
+
+handle_deposit(Amount, #{balance:=Balance} = Data, From) when is_number(Amount) andalso Amount > 0 ->
+    NewBalance = Balance + Amount,
+    {keep_state, Data#{balance:=NewBalance}, [{reply, From, deposit_made}]}.
