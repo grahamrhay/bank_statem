@@ -2,7 +2,7 @@
 
 -behaviour(gen_statem).
 
--export([start/0, stop/0, get_balance/0, close/0, reopen/0, deposit/1, withdraw/1]).
+-export([start/0, stop/0, get_balance/0, close/0, reopen/0, deposit/1, withdraw/1, place_hold/0]).
 -export([init/1, callback_mode/0]).
 -export([handle_event/4]).
 
@@ -26,6 +26,9 @@ deposit(Amount) ->
 withdraw(Amount) ->
     gen_statem:call(name(), {withdraw, Amount}).
 
+place_hold() ->
+    gen_statem:call(name(), place_hold).
+
 stop() ->
     gen_statem:stop(name()).
 
@@ -39,6 +42,9 @@ handle_event({call, From}, get_balance, open, #{balance:=Balance} = Data) ->
 
 handle_event({call, From}, close, open, Data) ->
     {next_state, closed, Data, [{reply, From, closed}]};
+
+handle_event({call, From}, place_hold, open, Data) ->
+    {next_state, held, Data, [{reply, From, hold_placed}]};
 
 handle_event({call, From}, {deposit, Amount}, open, #{balance:=Balance} = Data) when is_number(Amount) andalso Amount > 0 ->
     NewBalance = Balance + Amount,

@@ -33,3 +33,8 @@ withdraw_test() ->
 negative_balance_test() ->
     From = self(),
     ?assertError(function_clause, bank_statem:handle_event({call, From}, {withdraw, 1}, open, #{balance=>0})).
+
+place_hold_test() ->
+    From = self(),
+    Data = #{},
+    {next_state, held, Data, [{reply, From, hold_placed}]} = bank_statem:handle_event({call, From}, place_hold, open, Data).
