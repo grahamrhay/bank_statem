@@ -47,3 +47,15 @@ remove_hold_test() ->
     From = self(),
     Data = #{},
     {next_state, open, Data, [{reply, From, hold_removed}]} = bank_statem:held({call, From}, remove_hold, Data).
+
+available_to_withdraw_test() ->
+    From = self(),
+    Balance = 123,
+    Data = #{balance=>Balance},
+    {keep_state, Data, [{reply, From, Balance}]} = bank_statem:open({call, From}, available_to_withdraw, Data).
+
+available_to_withdraw_while_held_test() ->
+    From = self(),
+    Balance = 123,
+    Data = #{balance=>Balance},
+    {keep_state, Data, [{reply, From, 0}]} = bank_statem:held({call, From}, available_to_withdraw, Data).

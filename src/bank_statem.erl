@@ -2,7 +2,7 @@
 
 -behaviour(gen_statem).
 
--export([start/0, stop/0, get_balance/0, close/0, reopen/0, deposit/1, withdraw/1, place_hold/0, remove_hold/0]).
+-export([start/0, stop/0, get_balance/0, close/0, reopen/0, deposit/1, withdraw/1, place_hold/0, remove_hold/0, available_to_withdraw/0]).
 -export([init/1, callback_mode/0]).
 -export([open/3, held/3, closed/3]).
 
@@ -32,6 +32,9 @@ place_hold() ->
 remove_hold() ->
     gen_statem:call(name(), remove_hold).
 
+available_to_withdraw() ->
+    gen_statem:call(name(), available_to_withdraw).
+
 stop() ->
     gen_statem:stop(name()).
 
@@ -41,6 +44,9 @@ init([]) ->
 callback_mode() -> state_functions.
 
 open({call, From}, get_balance, #{balance:=Balance} = Data) ->
+    {keep_state, Data, [{reply, From, Balance}]};
+
+open({call, From}, available_to_withdraw, #{balance:=Balance} = Data) ->
     {keep_state, Data, [{reply, From, Balance}]};
 
 open({call, From}, close, Data) ->
@@ -55,6 +61,9 @@ open({call, From}, {deposit, Amount}, Data) ->
 open({call, From}, {withdraw, Amount}, #{balance:=Balance} = Data) when is_number(Amount) andalso (Balance - Amount > 0) ->
     NewBalance = Balance - Amount,
     {keep_state, Data#{balance:=NewBalance}, [{reply, From, withdrawal_made}]}.
+
+held({call, From}, available_to_withdraw, Data) ->
+    {keep_state, Data, [{reply, From, 0}]};
 
 held({call, From}, {deposit, Amount}, Data) ->
     handle_deposit(Amount, Data, From);
