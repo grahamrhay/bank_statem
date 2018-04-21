@@ -38,3 +38,8 @@ place_hold_test() ->
     From = self(),
     Data = #{},
     {next_state, held, Data, [{reply, From, hold_placed}]} = bank_statem:open({call, From}, place_hold, Data).
+
+remove_hold_test() ->
+    From = self(),
+    Data = #{},
+    {next_state, open, Data, [{reply, From, hold_removed}]} = bank_statem:held({call, From}, remove_hold, Data).
