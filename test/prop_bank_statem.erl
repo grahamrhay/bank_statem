@@ -1,0 +1,31 @@
+-module(prop_bank_statem).
+
+-include_lib("proper/include/proper.hrl").
+
+-compile(export_all).
+
+prop_test() ->
+    ?FORALL(Cmds, proper_fsm:commands(?MODULE),
+        begin
+            bank_statem:start_link(),
+            {History,State,Result} = proper_fsm:run_commands(?MODULE, Cmds),
+            bank_statem:stop(),
+            ?WHENFAIL(io:format("History: ~p\nState: ~p\nResult: ~p\n", [History,State,Result]),
+                aggregate(zip(proper_fsm:state_names(History), command_names(Cmds)), Result =:= ok))
+        end).
+
+initial_state() -> open.
+
+initial_state_data() -> #{}.
+
+open(_Data) -> [{open, {call, bank_statem, deposit, [pos_integer()]}}].
+
+weight(_FromState, _ToState, _Call) -> 1.
+
+precondition(_From, _To, #{}, {call, _Mod, _Fun, _Args}) -> true.
+
+postcondition(_From, _To, _Data, {call, _Mod, _Fun, _Args}, _Res) -> true.
+
+next_state_data(_From, _To, Data, _Res, {call, _Mod, _Fun, _Args}) ->
+    NewData = Data,
+    NewData.

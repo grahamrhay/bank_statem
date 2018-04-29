@@ -2,14 +2,14 @@
 
 -behaviour(gen_statem).
 
--export([start/0, stop/0, get_balance/0, close/0, reopen/0, deposit/1, withdraw/1, place_hold/0, remove_hold/0, available_to_withdraw/0]).
+-export([start_link/0, stop/0, get_balance/0, close/0, reopen/0, deposit/1, withdraw/1, place_hold/0, remove_hold/0, available_to_withdraw/0]).
 -export([init/1, callback_mode/0]).
 -export([open/3, held/3, closed/3]).
 
 name() -> bank_statem.
 
-start() ->
-    gen_statem:start({local, name()}, ?MODULE, [], []).
+start_link() ->
+    gen_statem:start_link({local, name()}, ?MODULE, [], []).
 
 get_balance() ->
     gen_statem:call(name(), get_balance).
