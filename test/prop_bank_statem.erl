@@ -6,13 +6,14 @@
 
 prop_test() ->
     ?FORALL(Cmds, proper_fsm:commands(?MODULE),
-        begin
-            bank_statem:start_link(),
-            {History,State,Result} = proper_fsm:run_commands(?MODULE, Cmds),
-            bank_statem:stop(),
-            ?WHENFAIL(io:format("History: ~p\nState: ~p\nResult: ~p\n", [History,State,Result]),
-                aggregate(zip(proper_fsm:state_names(History), command_names(Cmds)), Result =:= ok))
-        end).
+        ?TRAPEXIT(
+            begin
+                bank_statem:start_link(),
+                {History,State,Result} = proper_fsm:run_commands(?MODULE, Cmds),
+                bank_statem:stop(),
+                ?WHENFAIL(io:format("History: ~p\nState: ~p\nResult: ~p\n", [History,State,Result]),
+                    aggregate(zip(proper_fsm:state_names(History), command_names(Cmds)), Result =:= ok))
+            end)).
 
 initial_state() -> open.
 
