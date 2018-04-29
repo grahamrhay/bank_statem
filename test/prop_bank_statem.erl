@@ -16,7 +16,7 @@ prop_test() ->
 
 initial_state() -> open.
 
-initial_state_data() -> #{}.
+initial_state_data() -> #{balance=>0}.
 
 open(_Data) -> [{open, {call, bank_statem, deposit, [pos_integer()]}}].
 
@@ -24,7 +24,14 @@ weight(_FromState, _ToState, _Call) -> 1.
 
 precondition(_From, _To, #{}, {call, _Mod, _Fun, _Args}) -> true.
 
+postcondition(_From, _To, #{balance:=PrevBalance}, {call, bank_statem, deposit, [Amount]}, {deposit_made, UpdatedBalance}) ->
+    UpdatedBalance =:= (PrevBalance + Amount);
+
 postcondition(_From, _To, _Data, {call, _Mod, _Fun, _Args}, _Res) -> true.
+
+next_state_data(_From, _To, #{balance:=Balance}=Data, _Res, {call, bank_statem, deposit, [Amount]}) ->
+    NewBalance = Balance + Amount,
+    Data#{balance:=NewBalance};
 
 next_state_data(_From, _To, Data, _Res, {call, _Mod, _Fun, _Args}) ->
     NewData = Data,

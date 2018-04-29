@@ -76,4 +76,4 @@ closed({call, From}, reopen, Data) ->
 
 handle_deposit(Amount, #{balance:=Balance} = Data, From) when is_number(Amount) andalso Amount > 0 ->
     NewBalance = Balance + Amount,
-    {keep_state, Data#{balance:=NewBalance}, [{reply, From, deposit_made}]}.
+    {keep_state, Data#{balance:=NewBalance}, [{reply, From, {deposit_made, NewBalance}}]}.
