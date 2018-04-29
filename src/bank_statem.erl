@@ -58,7 +58,7 @@ open({call, From}, place_hold, Data) ->
 open({call, From}, {deposit, Amount}, Data) ->
     handle_deposit(Amount, Data, From);
 
-open({call, From}, {withdraw, Amount}, #{balance:=Balance} = Data) when is_number(Amount) andalso (Balance - Amount > 0) ->
+open({call, From}, {withdraw, Amount}, #{balance:=Balance} = Data) when is_number(Amount) andalso (Balance - Amount >= 0) ->
     NewBalance = Balance - Amount,
     {keep_state, Data#{balance:=NewBalance}, [{reply, From, withdrawal_made}]}.
 
